@@ -90,6 +90,25 @@ This is the closest possible approximation of sale data without access to the in
 
 **48-hour price floor flag** on the opportunities view — motivated by a real loss on Sun-Blessed Blacksmith's Toolboxes where the price crashed same-day from 4k to 890g. The floor warning prevents repeat mistakes.
 
+## Indexing
+
+With ~160k rows per snapshot and hourly collection, the database grows by several million rows per week. At 26m rows, full-table scans on every query made the dashboard noticeably slow — query times dropped from milliseconds to seconds.
+
+Indexes added to `db_setup.py`:
+
+```sql
+CREATE INDEX idx_auctions_snapshot ON auctions(snapshot_time);
+CREATE INDEX idx_auctions_realm_snapshot ON auctions(realm_id, snapshot_time);
+CREATE INDEX idx_auctions_item_realm ON auctions(item_id, realm_id);
+CREATE INDEX idx_auctions_realm_snapshot_item ON auctions(realm_id, snapshot_time, item_id);
+CREATE INDEX idx_tracking_item ON auction_tracking(item_id);
+CREATE INDEX idx_tracking_outcome ON auction_tracking(outcome);
+```
+
+Each index targets a specific access pattern: snapshot lookups, realm-filtered queries, cross-realm joins, the GROUP BY clauses inside the CTEs, and the outcome-based aggregations on the tracking table. SQLite uses compound indexes left-to-right, so the column order matters — an index on `(realm_id, snapshot_time)` helps queries filtering on `realm_id` alone or both columns, but not queries filtering on `snapshot_time` alone.
+
+Trade-off: indexes consume disk space (typically 10-30% of the indexed data) and slow down writes slightly. Both are acceptable for a read-heavy analytical workload.
+
 ## Known Limitations
 
 - **Item-level variation** is not yet tracked. Items like profession equipment exist at multiple item levels but share the same item_id, leading to misleading price comparisons. Storing the `bonus_lists` and `modifiers` fields from auction data would resolve this.
@@ -101,10 +120,25 @@ This is the closest possible approximation of sale data without access to the in
 - `run_snapshot.py` — combined orchestration script (auth, snapshot, item resolution, tracking)
 - `dashboard.py` — Flask web application
 - `query_ah.py` — terminal-based queries (kept for quick checks during development)
-- `db_setup.py` — schema creation, run once
+- `db_setup.py` — schema creation and indexes, run once
 - `templates/` — Jinja2 templates for the dashboard
 - `run_tracker.bat` — Windows Task Scheduler entry point
 - `wow-ah-project-session*.md` — session-by-session learning notes
+
+## Future Development
+
+The current tool surfaces opportunities. The end goal is a recommendation engine that produces a single confidence score per item, combining sale rate, cross-realm price delta, turnover velocity, and proximity to recent price floors. The signal output should be a clear, actionable line:
+
+> Buy [item] on [realm] for [price]. Expected sell price: [X]. Confidence: HIGH.
+
+Specific features planned:
+
+- **Item-level differentiation** via `bonus_lists` and `modifiers` storage, unlocking accurate analysis of profession equipment and other variable-ilvl items
+- **Sniper alerts** for high-value items listed significantly below historical average, with notifications via Discord webhook or similar
+- **Wowhead links** on item names for quick reference
+- **Price history charts** to visualise trends over time
+- **Improved cancel scan handling** by comparing total listing counts per item between snapshots, rather than relying solely on individual auction IDs
+- **Variable comparison windows** for the turnover analysis (1 hour, 3 hours, 6 hours back)
 
 ## Background
 

@@ -46,6 +46,13 @@ cursor.execute("""
     )
 """)
 
+cursor.execute("CREATE INDEX IF NOT EXISTS idx_auctions_snapshot ON auctions(snapshot_time)")
+cursor.execute("CREATE INDEX IF NOT EXISTS idx_auctions_realm_snapshot ON auctions(realm_id, snapshot_time)")
+cursor.execute("CREATE INDEX IF NOT EXISTS idx_auctions_item_realm ON auctions(item_id, realm_id)")
+cursor.execute("CREATE INDEX IF NOT EXISTS idx_auctions_realm_snapshot_item ON auctions(realm_id, snapshot_time, item_id)")
+cursor.execute("CREATE INDEX IF NOT EXISTS idx_tracking_item ON auction_tracking(item_id)")
+cursor.execute("CREATE INDEX IF NOT EXISTS idx_tracking_outcome ON auction_tracking(outcome)")
+
 conn.commit()
 conn.close()
 
