@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Turnover Analysis</h1>
+{% if message %}
+<p>{{ message }}</p>
+{% else %}
+<p>{{ previous }} → {{ latest }}</p>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Realm</th>
+        <th>Price</th>
+        <th>Gone</th>
+        <th>New</th>
+        <th>Held</th>
+        <th>Net</th>
+        <th>Signal</th>
+    </tr>
+    {% for item in items %}
+    {% set net = item["net_demand"] %}
+    {% set price = item["min_gold"] %}
+    <tr>
+        <td>{{ item["item_id"] }}</td>
+        <td>{{ item["item_name"] }}</td>
+        <td>{{ "Draenor" if item["realm_id"] == 1403 else "Arathor" }}</td>
+        <td>{{ "{:,.0f}".format(price) }}g</td>
+        <td>{{ item["gone"] }}</td>
+        <td>{{ item["new_listings"] }}</td>
+        <td>{{ item["held"] }}</td>
+        <td class="{{ 'positive' if net > 0 else ('negative' if net < 0 else 'neutral') }}">
+            {{ net }}
+        </td>
+        <td class="{{ 'buy' if net > 2 and price > 500 else ('watch' if net > 0 else ('avoid' if net < -3 else 'neutral')) }}">
+            {{ "BUY" if net > 2 and price > 500 else ("WATCH" if net > 0 and price > 100 else ("AVOID" if net < -3 else "—")) }}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+{% endblock %}

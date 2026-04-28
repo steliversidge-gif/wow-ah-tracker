@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Flip Finder</h1>
+<p>Items with the largest price difference between Draenor and Arathor.</p>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Draenor</th>
+        <th>Arathor</th>
+        <th>Delta</th>
+        <th>D.List</th>
+        <th>A.List</th>
+    </tr>
+    {% for flip in flips %}
+    <tr>
+        <td>{{ flip["item_id"] }}</td>
+        <td>{{ flip["item_name"] }}</td>
+        <td>{{ flip["subclass"] }}</td>
+        <td>{{ "{:,.0f}".format(flip["draenor_gold"]) }}g</td>
+        <td>{{ "{:,.0f}".format(flip["arathor_gold"]) }}g</td>
+        <td class="{{ 'positive' if flip['delta'] > 0 else 'negative' }}">
+            {{ "{:,.0f}".format(flip["delta"]) }}g
+        </td>
+        <td>{{ flip["dr_listings"] }}</td>
+        <td>{{ flip["ar_listings"] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

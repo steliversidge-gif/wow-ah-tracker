@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>WoW AH Tracker</h1>
+<div class="stat-cards">
+    <div class="stat-card">
+        <h3>Total Auctions Stored</h3>
+        <div class="value">{{ "{:,}".format(total_auctions) }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Snapshots Taken</h3>
+        <div class="value">{{ snapshot_count }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Latest Snapshot</h3>
+        <div class="value" style="font-size: 18px;">{{ latest_snapshot }}</div>
+    </div>
+</div>
+{% endblock %}

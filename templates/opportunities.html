@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Opportunities</h1>
+{% if message %}
+<p>{{ message }}</p>
+{% else %}
+<p>{{ previous }} -> {{ latest }}</p>
+<div style="margin-bottom: 20px; display: flex; gap: 15px; align-items: center;">
+    <label>Min Profit: 
+        <input type="number" id="min_profit" value="{{ request.args.get('min_profit', 100) }}" 
+               style="width: 80px; background: #16213e; color: #e0e0e0; border: 1px solid #2a2a4a; padding: 5px;">
+    </label>
+    <label>Min Listings: 
+        <input type="number" id="min_listings" value="{{ request.args.get('min_listings', 3) }}" 
+               style="width: 60px; background: #16213e; color: #e0e0e0; border: 1px solid #2a2a4a; padding: 5px;">
+    </label>
+    <label>Sort: 
+        <select id="sort" style="background: #16213e; color: #e0e0e0; border: 1px solid #2a2a4a; padding: 5px;">
+            <option value="gone" {{ 'selected' if request.args.get('sort') == 'gone' else '' }}>Turnover</option>
+            <option value="delta" {{ 'selected' if request.args.get('sort') == 'delta' else '' }}>Delta</option>
+            <option value="sale_pct" {{ 'selected' if request.args.get('sort') == 'sale_pct' else '' }}>Sale Rate</option>
+            <option value="price" {{ 'selected' if request.args.get('sort') == 'price' else '' }}>Price</option>
+        </select>
+    </label>
+    <label>Type:
+    <select id="item_type" style="background: #16213e; color: #e0e0e0; border: 1px solid #2a2a4a; padding: 5px;">
+        <option value="">All</option>
+        <option value="Plate" {{ 'selected' if request.args.get('item_type') == 'Plate' else '' }}>Plate</option>
+        <option value="Cloth" {{ 'selected' if request.args.get('item_type') == 'Cloth' else '' }}>Cloth</option>
+        <option value="Leather" {{ 'selected' if request.args.get('item_type') == 'Leather' else '' }}>Leather</option>
+        <option value="Mail" {{ 'selected' if request.args.get('item_type') == 'Mail' else '' }}>Mail</option>
+        <option value="Mount" {{ 'selected' if request.args.get('item_type') == 'Mount' else '' }}>Mount</option>
+        <option value="Companion Pets" {{ 'selected' if request.args.get('item_type') == 'Companion Pets' else '' }}>Pets</option>
+        <option value="Decor" {{ 'selected' if request.args.get('item_type') == 'Decor' else '' }}>Decor</option>
+        <option value="Miscellaneous" {{ 'selected' if request.args.get('item_type') == 'Miscellaneous' else '' }}>Misc</option>
+    </select>
+</label>
+    <button onclick="applyFilters()" style="background: #00d4ff; color: #1a1a2e; border: none; padding: 8px 16px; cursor: pointer; font-weight: bold;">Apply</button>
+</div>
+
+<script>
+function applyFilters() {
+    const profit = document.getElementById('min_profit').value;
+    const listings = document.getElementById('min_listings').value;
+    const sort = document.getElementById('sort').value;
+    const type = document.getElementById('item_type').value;
+    window.location.href = `/opportunities?min_profit=${profit}&min_listings=${listings}&sort=${sort}&item_type=${type}`;
+}
+</script>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Draenor</th>
+        <th>Arathor</th>
+        <th>Delta</th>
+        <th>D.List</th>
+        <th>A.List</th>
+        <th>Gone</th>
+        <th>Sale%</th>
+        <th>48h Floor</th>
+        <th>Signal</th>
+    </tr>
+    {% for item in items %}
+    {% set gone = item["gone"] %}
+    {% set price = item["draenor_gold"] %}
+    {% set sale = item["sale_pct"] %}
+    {% set floor = item["floor_48h"] %}
+    {% set near_floor = (floor and price < floor * 1.2) %}
+    <tr>
+        <td>{{ item["item_id"] }}</td>
+        <td>{{ item["item_name"] }}</td>
+        <td>{{ item["subclass"] }}</td>
+        <td>{{ "{:,.0f}g".format(item["draenor_gold"]) }}</td>
+        <td>{{ "{:,.0f}g".format(item["arathor_gold"]) if item["arathor_gold"] else "—" }}</td>
+        <td class="{{ 'positive' if item['delta'] > 0 else 'negative' }}">
+            {{ "{:,.0f}g".format(item["delta"]) if item["arathor_gold"] else "—" }}
+        </td>
+        <td>{{ item["dr_listings"] }}</td>
+        <td>{{ item["ar_listings"] }}</td>
+        <td>{{ gone }}</td>
+        <td class="{{ 'positive' if sale and sale > 70 else ('watch' if sale and sale > 40 else 'neutral') }}">
+            {{ "{:.0f}%".format(sale) if sale else "—" }}
+        </td>
+        <td>{{ "{:,.0f}g".format(floor) if floor else "—" }}</td>
+        <td class="{{ 'buy' if gone > 5 and sale and sale > 50 and near_floor else ('watch' if gone > 2 else 'neutral') }}">
+            {{ "BUY" if gone > 5 and sale and sale > 50 and near_floor else ("WATCH" if gone > 2 else "—") }}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+{% endblock %}

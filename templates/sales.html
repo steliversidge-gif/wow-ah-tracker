@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Sale Rates</h1>
+<p>Items with enough resolved auctions to calculate a sale rate.</p>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Sold</th>
+        <th>Expired</th>
+        <th>Active</th>
+        <th>Sale %</th>
+        <th>Avg Gold</th>
+    </tr>
+    {% for item in items %}
+    <tr>
+        <td>{{ item["item_id"] }}</td>
+        <td>{{ item["item_name"] }}</td>
+        <td>{{ item["sold"] }}</td>
+        <td>{{ item["expired"] }}</td>
+        <td>{{ item["active"] }}</td>
+        <td class="{{ 'positive' if item['sale_pct'] and item['sale_pct'] > 70 else ('watch' if item['sale_pct'] and item['sale_pct'] > 40 else 'negative') }}">
+            {{ "{:.1f}%".format(item["sale_pct"]) if item["sale_pct"] else "N/A" }}
+        </td>
+        <td>{{ "{:,.0f}g".format(item["avg_sold_gold"]) if item["avg_sold_gold"] else "N/A" }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
