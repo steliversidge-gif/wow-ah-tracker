@@ -18,7 +18,6 @@ token_response = requests.post(
         auth=(CLIENT_ID,CLIENT_SECRET)
 )
 
-print("status:", token_response.status_code)
 
 token_data = token_response.json()
 access_token = token_data["access_token"]
