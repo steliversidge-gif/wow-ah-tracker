@@ -123,6 +123,7 @@ Trade-off: indexes consume disk space (typically 10-30% of the indexed data) and
 - `db_setup.py` — schema creation and indexes, run once
 - `templates/` — Jinja2 templates for the dashboard
 - `run_tracker.bat` — Windows Task Scheduler entry point
+- `learning-log/` — the session plans I worked through while building it
 
 ## Future Development
 
@@ -142,3 +143,5 @@ Specific features planned:
 ## Background
 
 This is a personal project. I'm a data analytics professional with a strong SQL background, currently building toward full-stack engineering capability. The auction house tracker was chosen because it has genuine personal stakes — I play the game and use the tool — which makes the learning curve sustainable in a way that tutorial projects haven't been for me historically.
+
+Built as a self-guided learning project. The session plans I worked through are in [`learning-log/`](learning-log/), kept as a record of progression rather than a polished retrospective.

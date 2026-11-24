@@ -221,7 +221,3 @@ __marimo__/
 ah_data.db
 tracker_log.txt
 blizzardtokens.env
-
-# Private working notes
-wow-ah-project-session*.md
-wow-ah-claude-code-brief.md
