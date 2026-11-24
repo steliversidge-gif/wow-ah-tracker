@@ -22,8 +22,6 @@ token_response = requests.post(
 token_data = token_response.json()
 access_token = token_data["access_token"]
 
-print("Token:", access_token)
-
 # Intermediary Step
 # realm_url = "https://eu.api.blizzard.com/data/wow/connected-realm/index"
 headers = {"Authorization": f"Bearer {access_token}"}
